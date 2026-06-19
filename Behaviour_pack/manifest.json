@@ -1,0 +1,33 @@
+{
+  "format_version": 2,
+  "header": {
+    "description": "Morph Mod Logic and Mechanics",
+    "name": "Morph Mod Behavior Pack",
+    "uuid": "4f8a3291-76bc-412e-a58d-29c8fb99281a",
+    "version": [1, 0, 0],
+    "min_engine_version": [1, 20, 20]
+  },
+  "modules": [
+    {
+      "description": "Scripting engine attachment",
+      "type": "script",
+      "uuid": "992a54b3-c8d1-4bc3-95e2-6ff1237ef80e",
+      "version": [1, 0, 0],
+      "entry": "scripts/main.js"
+    }
+  ],
+  "dependencies": [
+    {
+      "module_name": "@minecraft/server",
+      "version": "1.13.0"
+    },
+    {
+      "module_name": "@minecraft/server-ui",
+      "version": "1.2.0"
+    },
+    {
+      "uuid": "e8a93210-54cc-482a-b51c-79c8fb88281a",
+      "version": [1, 0, 0]
+    }
+  ]
+}
