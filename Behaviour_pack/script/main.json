@@ -1,0 +1,79 @@
+import { world, system } from "@minecraft/server";
+import { ActionFormData } from "@minecraft/server-ui";
+
+// Intercept item usage (right click on PC / tap on mobile screens)
+world.beforeEvents.itemUse.subscribe((eventData) => {
+    const player = eventData.source;
+    const item = eventData.itemStack;
+
+    if (item && item.typeId === "my_mod:morph_bracelet") {
+        system.run(() => {
+            openMorphMenu(player);
+        });
+    }
+});
+
+function openMorphMenu(player) {
+    const form = new ActionFormData();
+    form.title("§lMorph Selection Menu");
+    form.body("Select an entity target form to transform into:");
+
+    // Button structure: Name, Icon path from standard vanilla assets
+    form.button("Chicken\n[Feather Falling Ability]", "textures/items/feather");
+    form.button("Warden\n[Hostile Disguise / Golem Target]", "textures/ui/sculk_sensor_phase");
+    form.button("Iron Golem\n[No Fall Damage Power]", "textures/items/iron_ingot");
+    form.button("§cReset to Human Form", "textures/blocks/barrier");
+
+    form.show(player).then((response) => {
+        if (response.canceled) return;
+
+        switch(response.selection) {
+            case 0: applyMorph(player, "chicken"); break;
+            case 1: applyMorph(player, "warden"); break;
+            case 2: applyMorph(player, "iron_golem"); break;
+            case 3: clearMorphs(player); break;
+        }
+    });
+}
+
+function applyMorph(player, type) {
+    clearMorphs(player);
+    player.addTag(`is_morphed_${type}`);
+    player.sendMessage(`§aSuccessfully transformed into a ${type.toUpperCase()}!`);
+
+    // Dynamic Game Loop checks are run below via intervals to sustain states
+}
+
+function clearMorphs(player) {
+    player.removeTag("is_morphed_chicken");
+    player.removeTag("is_morphed_warden");
+    player.removeTag("is_morphed_iron_golem");
+    player.removeTag("hostile_mob"); // clear the custom aggro layer
+    
+    player.removeEffect("slow_falling");
+    player.removeEffect("resistance");
+    player.sendMessage("§eReturned back to human form.");
+}
+
+// Tick system handler running loops every 1 second (20 ticks) to enforce specific passive powers
+system.runInterval(() => {
+    for (const player of world.getAllPlayers()) {
+        const tags = player.getTags();
+        
+        if (tags.includes("is_morphed_chicken")) {
+            player.addEffect("slow_falling", 40, { amplifier: 1, showParticles: false });
+        }
+        
+        if (tags.includes("is_morphed_warden")) {
+            player.addTag("hostile_mob"); 
+            player.addEffect("resistance", 40, { amplifier: 3, showParticles: false });
+            // Runs server command natively to scare off normal zombies/creepers
+            player.runCommandAsync("event entity @e[r=15,family=monster] minecraft:crystal_explode");
+        }
+        
+        if (tags.includes("is_morphed_iron_golem")) {
+            // Iron Golem logic blocks structural fall profiles
+            player.addEffect("resistance", 40, { amplifier: 5, showParticles: false }); 
+        }
+    }
+}, 20);
