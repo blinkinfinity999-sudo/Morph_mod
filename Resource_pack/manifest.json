@@ -1,0 +1,18 @@
+{
+  "format_version": 2,
+  "header": {
+    "description": "Morph Mod Visual Client Assets",
+    "name": "Morph Mod Resource Pack",
+    "uuid": "e8a93210-54cc-482a-b51c-79c8fb88281a",
+    "version": [1, 0, 0],
+    "min_engine_version": [1, 20, 20]
+  },
+  "modules": [
+    {
+      "description": "Texture component delivery modules",
+      "type": "resources",
+      "uuid": "2a10b492-491c-4b92-ba22-83deef7cc88d",
+      "version": [1, 0, 0]
+    }
+  ]
+}
